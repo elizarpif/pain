@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
 
 namespace ConsoleApp10
@@ -14,7 +15,7 @@ namespace ConsoleApp10
     Примечание. Класс должен содержать не менее 3 различных конструкторов.
     
      */
-    public class Matrix : ICloneable
+    public class Matrix : ICloneable, IComparable, IComparable<Matrix> 
     {
         private int Size;
         private List<List<float>> values;
@@ -347,25 +348,37 @@ namespace ConsoleApp10
         {
             return DivisionMatrix(a, b);
         }
+        
+        //возведение матрицы в степень
+        public static Matrix Pow(Matrix A, int pow) {
+            var resultMatrix = A;
+            for (int i = 0; i < pow - 1; i++) {
+                resultMatrix *= A;
+            }
+            return resultMatrix;
+        }
 
-        public void Print()
+        public override string ToString()
         {
-            Console.WriteLine($"текущая матрица ({Size} x {Size}):");
-
+            StringBuilder str = new StringBuilder();
             double eps = Math.Pow(10, -3);
+            
             foreach (var list in values)
             {
                 foreach (var value in list)
                 {
                     if (value < eps)
-                        Console.Write("0 ");
+                        str.Append("0 ");
                     else
-                        Console.Write($"{value} ");
+                        str.Append($"{value} ");
                 }
 
-                Console.WriteLine();
+                str.Append("\n");
             }
+
+            return str.ToString();
         }
+
 
         private void setValues()
         {
@@ -398,6 +411,7 @@ namespace ConsoleApp10
 
             values = res;
         }
+        
 
         private bool SetSize()
         {
@@ -423,6 +437,27 @@ namespace ConsoleApp10
             if (Size == 0)
                 return false;
             return true;
+        }
+
+        public int CompareTo(Matrix A) {
+            var ca1 = this.Determinant();
+            var ca2 = A.Determinant();
+            if (ca1 > ca2) {
+                return 1;
+            } else if (ca1 < ca2) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
+        public int CompareTo(object obj) {
+            if (!(obj is Matrix)) {
+                throw new MatrixException("Не могу сравнить значения");
+            }
+            if (obj is null) {
+                throw new MatrixException("NULL");
+            }
+            return CompareTo((Matrix)obj);
         }
     }
 }

@@ -73,7 +73,7 @@ namespace ConsoleApp10
             {
                 return;
             }
-            
+
             setValues();
         }
 
@@ -188,6 +188,57 @@ namespace ConsoleApp10
             }
 
             return resMass;
+        }
+
+        public int getSize
+            => this.Size;
+
+        public static Matrix SumMatrix(Matrix a, Matrix b)
+        {
+            if (a.Size != b.Size)
+            {
+                throw new MatrixException("Размерности матриц не совпадают");
+            }
+
+            Matrix resMass = new Matrix(a.Size);
+            for (int i = 0; i < a.Size; i++)
+            {
+                for (int j = 0; j < b.Size; j++)
+                {
+                    resMass.values[i][j] = a.values[i][j] + b.values[i][j];
+                }
+            }
+
+            return resMass;
+        }
+
+        // Умножение матрицы А на матрицу B
+        public static Matrix CompositionMatrix(Matrix a, Matrix b)
+        {
+            if (a.Size != b.Size)
+            {
+                throw new MatrixException("Эти матрицы нельзя перемножить");
+            }
+
+            Matrix resMass = new Matrix(a.Size);
+            
+            for (int i = 0; i < a.Size; i++)
+                for (int j = 0; j < b.Size; j++)
+                    for (int k = 0; k < b.Size; k++)
+                        resMass.values[i][j] += a.values[i][k] * b.values[k][j];
+
+            return resMass;
+        }
+
+        public static Matrix operator *(Matrix a, Matrix b)
+        {
+            return CompositionMatrix(a, b);
+        }
+
+
+        public static Matrix operator +(Matrix a, Matrix b)
+        {
+            return SumMatrix(a, b);
         }
 
         public void Print()

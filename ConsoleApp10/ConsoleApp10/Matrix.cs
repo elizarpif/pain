@@ -14,7 +14,7 @@ namespace ConsoleApp10
     ICloneable. Добавить возможность работы с элементами матрицы в цикле foreach.
     Примечание. Класс должен содержать не менее 3 различных конструкторов.
      */
-    public class Matrix
+    public class Matrix: ICloneable
     {
         private int Size;
         private List<List<float>> values;
@@ -69,17 +69,28 @@ namespace ConsoleApp10
                 setValues();
             }
         }
-
+        public object Clone()
+        {
+            Matrix m = new Matrix(); 
+            m.Size = this.Size;
+            m.values = new List<List<float>>();
+            foreach (List<float> str in values)
+            {
+                List<float> valuesInStr = new List<float>();
+                foreach (float val in str)
+                {
+                    valuesInStr.Add(val);
+                }
+                m.values.Add(valuesInStr);
+            }
+            return m;
+        }
         public float Determinant()
         {
             int i, j, k, minus = 0, size = Size;
-            float h, max, min, opr, tmp, tmp2;
-            opr = 1;
-             
-            Matrix m = new Matrix(); // исходную запоминаем
-                                     // todo реализовать нормальное клонирование, а то две матрицы меняются
-            m.Size = this.Size;
-            m.values = this.values;
+            float h, max, min, tmp, tmp2, opr = 1;
+
+            Matrix m = (Matrix)this.Clone();
             
             for (i = 0; i < size; i++)
             {

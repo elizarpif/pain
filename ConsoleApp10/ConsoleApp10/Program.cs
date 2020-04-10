@@ -8,7 +8,7 @@ namespace ConsoleApp10
     {
         static void Main(string[] args)
         {
-            Matrix matr = new Matrix(3);
+            Matrix matr = new Matrix(2);
 
             try
             {
@@ -30,14 +30,19 @@ namespace ConsoleApp10
                 mult.Print();*/
 
                 Matrix inverse = Matrix.InverseMatrix(matr);
-                Console.WriteLine($"inverse_matrix: ");
-                inverse.Print();
+                Console.WriteLine($"inverse_matrix: {inverse.ToString()}");
                 
-                Matrix div = matr / matr;
-                div.Print();
-
+                var a = new Polynom<Matrix>(1, matr, matr);
+                var b = new Polynom<Matrix>(1, matr, inverse);
+                var c = a * b;
+            
+                Console.WriteLine(c.ToString());
             }
             catch (MatrixException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            catch (ArgumentException ex)
             {
                 Console.WriteLine(ex.Message);
             }

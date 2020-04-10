@@ -9,7 +9,19 @@ namespace ConsoleApp10
             Console.WriteLine("Hello World!");
             Matrix matr = new Matrix(3);
             matr.setMatrixValues();
-            Console.WriteLine($"determ: {matr.Determinant()}");
+            float det = matr.Determinant();
+            Console.WriteLine($"determ: {det}");
+            // Console.WriteLine($"inverse_matrix: ");
+            
+            try
+            {
+                Matrix.TranspositionMatrix(matr).Print();
+            }
+            catch (MatrixException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            
             matr.Print();
         }
     }

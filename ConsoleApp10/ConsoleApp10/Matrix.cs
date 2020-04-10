@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
+
 
 namespace ConsoleApp10
 {
@@ -13,6 +12,7 @@ namespace ConsoleApp10
     пользовательского класса, пронаследованного от Exception). Реализовать интерфейс
     ICloneable. Добавить возможность работы с элементами матрицы в цикле foreach.
     Примечание. Класс должен содержать не менее 3 различных конструкторов.
+    
      */
     public class Matrix : ICloneable
     {
@@ -23,6 +23,7 @@ namespace ConsoleApp10
         {
             int size = vals.Count;
             bool check = true;
+
             foreach (var list in vals)
             {
                 int rowSize = list.Count;
@@ -48,17 +49,26 @@ namespace ConsoleApp10
         public Matrix(int n)
         {
             Size = n;
-            values = new List<List<float>>();
-            for (int i = 0; i < Size; i++)
+            values = Matrix.CustomValues(n, n);
+        }
+
+
+        // CustomValues создает список списков размера n * m, заполненный нулями
+        private static List<List<float>> CustomValues(int n, int m)
+        {
+            List<List<float>> values = new List<List<float>>();
+            for (int i = 0; i < n; i++)
             {
                 List<float> strValues = new List<float>();
-                for (int j = 0; j < Size; j++)
+                for (int j = 0; j < m; j++)
                 {
                     strValues.Add(0);
                 }
 
                 values.Add(strValues);
             }
+
+            return values;
         }
 
         public Matrix()
@@ -82,6 +92,7 @@ namespace ConsoleApp10
             Matrix m = new Matrix();
             m.Size = this.Size;
             m.values = new List<List<float>>();
+
             foreach (List<float> str in values)
             {
                 List<float> valuesInStr = new List<float>();
@@ -171,15 +182,91 @@ namespace ConsoleApp10
             return opr;
         }
 
-        // public Matrix InverseMatrix(float det)
-        // {
-        // }
+        //обратная матрица
+        public static Matrix InverseMatrix(Matrix a)
+        {
+            Matrix resMass = new Matrix(a.Size);
+            Matrix algAddMatrix = new Matrix(a.Size); // алгебр дополнение
+            if (Math.Abs(a.Determinant()).Equals(0))
+            {
+                throw new MatrixException("Определитель матрицы равен 0. Матрицa вырожденная");
+            }
+
+            for (int i = 0; i < a.Size; i++)
+            {
+                for (int j = 0; j < a.Size; j++)
+                {
+                    algAddMatrix.values[i][j] = (float) (Math.Pow(-1, i + j) * Minor(i, j, a).Determinant());
+                }
+            }
+
+            algAddMatrix = TranspositionMatrix(algAddMatrix);
+            resMass = CompositionWhithNum(algAddMatrix, 1 / a.Determinant());
+            return resMass;
+        }
+
+        // Умножение матрицы А на число
+        public static Matrix CompositionWhithNum(Matrix a, float num)
+        {
+            Matrix resMass = new Matrix(a.Size);
+            for (int i = 0; i < a.Size; i++)
+            {
+                for (int j = 0; j < a.Size; j++)
+                {
+                    resMass.values[i][j] = a.values[i][j] * num;
+                }
+            }
+
+            return resMass;
+        }
+
+        //миноры
+        public static Matrix Minor(int row, int col, Matrix a)
+        {
+            Matrix resMass = new Matrix(a.Size - 1);
+            for (int i = 0; i < a.Size - 1; i++)
+            {
+                if (i < row)
+                {
+                    for (int j = 0; j < a.Size - 1; j++)
+                    {
+                        if (j < col)
+                        {
+                            resMass.values[i][j] = a.values[i][j];
+                        }
+                        else
+                        {
+                            resMass.values[i][j] = a.values[i][j + 1];
+                        }
+                    }
+                }
+                else
+                {
+                    for (int j = 0; j < a.Size - 1; j++)
+                    {
+                        if (j < col)
+                        {
+                            resMass.values[i][j] = a.values[i + 1][j];
+                        }
+                        else
+                        {
+                            resMass.values[i][j] = a.values[i + 1][j + 1];
+                        }
+                    }
+                }
+            }
+
+            return resMass;
+        }
+
 
         //транспонирование
         public static Matrix TranspositionMatrix(Matrix a)
         {
             Matrix resMass = new Matrix(a.Size);
-            for (int i = 0; i < a.Size; i++)
+            for (int i = 0;
+                i < a.Size;
+                i++)
             {
                 for (int j = 0; j < a.Size; j++)
                 {
@@ -201,7 +288,9 @@ namespace ConsoleApp10
             }
 
             Matrix resMass = new Matrix(a.Size);
-            for (int i = 0; i < a.Size; i++)
+            for (int i = 0;
+                i < a.Size;
+                i++)
             {
                 for (int j = 0; j < b.Size; j++)
                 {
@@ -221,12 +310,19 @@ namespace ConsoleApp10
             }
 
             Matrix resMass = new Matrix(a.Size);
-            
-            for (int i = 0; i < a.Size; i++)
-                for (int j = 0; j < b.Size; j++)
-                    for (int k = 0; k < b.Size; k++)
-                        resMass.values[i][j] += a.values[i][k] * b.values[k][j];
-
+            for (int i = 0;
+                i < a.Size;
+                i++)
+            for (int j = 0;
+                j < b.Size;
+                j++)
+            for (int k = 0;
+                k < b.Size;
+                k++)
+                resMass.values[i]
+                    [j] += a.values[i]
+                    [k] * b.values[k]
+                    [j];
             return resMass;
         }
 
@@ -241,15 +337,30 @@ namespace ConsoleApp10
             return SumMatrix(a, b);
         }
 
+        //деление матрицы A на матрицу B
+        public static Matrix DivisionMatrix(Matrix a, Matrix b)
+        {
+            return Matrix.CompositionMatrix(a, Matrix.InverseMatrix(b));
+        }
+
+        public static Matrix operator /(Matrix a, Matrix b)
+        {
+            return DivisionMatrix(a, b);
+        }
+
         public void Print()
         {
             Console.WriteLine($"текущая матрица ({Size} x {Size}):");
 
+            double eps = Math.Pow(10, -3);
             foreach (var list in values)
             {
                 foreach (var value in list)
                 {
-                    Console.Write($"{value} ");
+                    if (value < eps)
+                        Console.Write("0 ");
+                    else
+                        Console.Write($"{value} ");
                 }
 
                 Console.WriteLine();
@@ -262,27 +373,27 @@ namespace ConsoleApp10
 
             Console.WriteLine($"введите значения матрицы ({Size} x {Size}) через пробел: ");
 
-            for (int i = 0; i < Size; i++)
+            try
             {
-                string[] vals = Console.ReadLine().Split(' ');
-
-                List<float> valuesInStr = new List<float>();
-
-                try
+                for (int i = 0; i < Size; i++)
                 {
+                    string[] vals = Console.ReadLine().Split(' ');
+
+                    List<float> valuesInStr = new List<float>();
+
                     foreach (string val in vals)
                     {
                         float v = float.Parse(val);
                         valuesInStr.Add(v);
                     }
-                }
-                catch (FormatException ex)
-                {
-                    Console.WriteLine("ошибка при чтении значений; выход");
-                    return;
-                }
 
-                res.Add(valuesInStr);
+                    res.Add(valuesInStr);
+                }
+            }
+            catch (FormatException ex)
+            {
+                Console.WriteLine("ошибка при чтении значений; выход");
+                Environment.Exit(Environment.ExitCode);
             }
 
             values = res;

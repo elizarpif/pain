@@ -8,19 +8,16 @@ namespace ConsoleApp10
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
             Matrix matr = new Matrix(3);
-            
-            matr.setMatrixValues();
-            
-            float det = matr.Determinant();
-            Console.WriteLine($"determ: {det}");
-            
-            // Console.WriteLine($"inverse_matrix: ");
-            
+
             try
             {
-                Matrix m = Matrix.TranspositionMatrix(matr);
+                matr.setMatrixValues();
+            
+                float det = matr.Determinant();
+                Console.WriteLine($"determ: {det}");
+                
+                /*Matrix m = Matrix.TranspositionMatrix(matr);
                 Console.WriteLine("transposition ");
                 m.Print();
                 
@@ -30,14 +27,21 @@ namespace ConsoleApp10
 
                 Matrix mult = m * matr;
                 Console.WriteLine("multiply ");
-                mult.Print();
+                mult.Print();*/
+
+                Matrix inverse = Matrix.InverseMatrix(matr);
+                Console.WriteLine($"inverse_matrix: ");
+                inverse.Print();
+                
+                Matrix div = matr / matr;
+                div.Print();
+
             }
             catch (MatrixException ex)
             {
                 Console.WriteLine(ex.Message);
             }
-            
-           // matr.Print();
+
         }
     }
 }

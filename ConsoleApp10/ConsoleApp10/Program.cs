@@ -7,10 +7,14 @@ namespace ConsoleApp10
         static void Main(string[] args)
         {
             Matrix matr = new Matrix(2);
+            Matrix matr2 = new Matrix(2);
 
             try
             {
                 matr.setMatrixValues();
+                matr2.setMatrixValues();
+                int l = matr.CompareTo(matr2);
+                Console.WriteLine($"compare result {l}");
             
                 float det = matr.Determinant();
                 Console.WriteLine($"determ: {det}");

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Collections;
-using System.Linq;
 
 namespace ConsoleApp10
 {
@@ -63,9 +62,25 @@ namespace ConsoleApp10
             return cloneDictionary;
         }
 
-        public int CompareTo(Polynom<T> A)
+        public int CompareTo(Polynom<T> with)
         {
-            return pairDegreeCoef.Keys.Max().CompareTo(A.pairDegreeCoef.Keys.Max());
+            foreach (var pair1 in pairDegreeCoef)
+            {
+                foreach (var pair2 in with.pairDegreeCoef)
+                {
+                    if (pair1.Key > pair2.Key)
+                        return 1;
+                    if (pair1.Key < pair2.Key)
+                        return -1;
+                    if (pair1.Key == pair2.Key && pair1.Value.CompareTo(pair2.Value) == 1)
+                        return 1;
+                    if (pair1.Key == pair2.Key && pair1.Value.CompareTo(pair2.Value) == -1)
+                        return -1;
+                    if (pair1.Key == pair2.Key && pair1.Value.CompareTo(pair2.Value) == 0)
+                        break;
+                }
+            }
+            return 0;
         }
 
         int IComparable.CompareTo(object obj)
@@ -103,10 +118,8 @@ namespace ConsoleApp10
             {
                 return B;
             }
-            else
-            {
-                return A;
-            }
+            return A;
+            
         }
         
         private static Polynom<T> GetMinPolynome(Polynom<T> A, Polynom<T> B)

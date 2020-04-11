@@ -115,10 +115,8 @@ namespace ConsoleApp10
             {
                 return A;
             }
-            else
-            {
-                return B;
-            }
+            return B;
+            
         }
 
         public static Polynom<T> PolynomSum(Polynom<T> A, Polynom<T> B)

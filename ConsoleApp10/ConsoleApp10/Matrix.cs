@@ -15,7 +15,7 @@ namespace ConsoleApp10
     Примечание. Класс должен содержать не менее 3 различных конструкторов.
     
      */
-    public class Matrix : ICloneable, IComparable, IComparable<Matrix> 
+    public class Matrix : ICloneable, IComparable, IComparable<Matrix>
     {
         private int Size;
         private List<List<float>> values;
@@ -113,6 +113,11 @@ namespace ConsoleApp10
             int i, j, k, minus = 0, size = Size;
             float h, max, min, tmp, tmp2, opr = 1;
 
+            if (this.Size == 0)
+            {
+                throw new MatrixException("матрица размера 0 * 0 !");
+            }
+            
             Matrix m = (Matrix) this.Clone();
 
             for (i = 0; i < size; i++)
@@ -202,22 +207,7 @@ namespace ConsoleApp10
             }
 
             algAddMatrix = TranspositionMatrix(algAddMatrix);
-            resMass = CompositionWhithNum(algAddMatrix, 1 / a.Determinant());
-            return resMass;
-        }
-
-        // Умножение матрицы А на число
-        public static Matrix CompositionWhithNum(Matrix a, float num)
-        {
-            Matrix resMass = new Matrix(a.Size);
-            for (int i = 0; i < a.Size; i++)
-            {
-                for (int j = 0; j < a.Size; j++)
-                {
-                    resMass.values[i][j] = a.values[i][j] * num;
-                }
-            }
-
+            resMass = algAddMatrix * (1 / a.Determinant());
             return resMass;
         }
 
@@ -264,10 +254,13 @@ namespace ConsoleApp10
         //транспонирование
         public static Matrix TranspositionMatrix(Matrix a)
         {
+            if (a.Size == 0)
+            {
+                throw new MatrixException("матрица размера 0 * 0 !");
+            }
+
             Matrix resMass = new Matrix(a.Size);
-            for (int i = 0;
-                i < a.Size;
-                i++)
+            for (int i = 0; i < a.Size; i++)
             {
                 for (int j = 0; j < a.Size; j++)
                 {
@@ -278,10 +271,38 @@ namespace ConsoleApp10
             return resMass;
         }
 
-        public int getSize
-            => this.Size;
+        // Умножение матрицы А на матрицу B
+        public static Matrix operator *(Matrix a, Matrix b)
+        {
+            if (a.Size != b.Size)
+            {
+                throw new MatrixException("Эти матрицы нельзя перемножить");
+            }
 
-        public static Matrix SumMatrix(Matrix a, Matrix b)
+            Matrix resMass = new Matrix(a.Size);
+            for (int i = 0; i < a.Size; i++)
+            for (int j = 0; j < b.Size; j++)
+            for (int k = 0; k < b.Size; k++)
+                resMass.values[i][j] += a.values[i][k] * b.values[k][j];
+            return resMass;
+        }
+
+
+        public static Matrix operator *(Matrix a, float num)
+        {
+            Matrix resMass = new Matrix(a.Size);
+            for (int i = 0; i < a.Size; i++)
+            {
+                for (int j = 0; j < a.Size; j++)
+                {
+                    resMass.values[i][j] = a.values[i][j] * num;
+                }
+            }
+
+            return resMass;
+        }
+
+        public static Matrix operator +(Matrix a, Matrix b)
         {
             if (a.Size != b.Size)
             {
@@ -289,9 +310,7 @@ namespace ConsoleApp10
             }
 
             Matrix resMass = new Matrix(a.Size);
-            for (int i = 0;
-                i < a.Size;
-                i++)
+            for (int i = 0; i < a.Size; i++)
             {
                 for (int j = 0; j < b.Size; j++)
                 {
@@ -302,59 +321,26 @@ namespace ConsoleApp10
             return resMass;
         }
 
-        // Умножение матрицы А на матрицу B
-        public static Matrix CompositionMatrix(Matrix a, Matrix b)
-        {
-            if (a.Size != b.Size)
-            {
-                throw new MatrixException("Эти матрицы нельзя перемножить");
-            }
-
-            Matrix resMass = new Matrix(a.Size);
-            for (int i = 0;
-                i < a.Size;
-                i++)
-            for (int j = 0;
-                j < b.Size;
-                j++)
-            for (int k = 0;
-                k < b.Size;
-                k++)
-                resMass.values[i]
-                    [j] += a.values[i]
-                    [k] * b.values[k]
-                    [j];
-            return resMass;
-        }
-
-        public static Matrix operator *(Matrix a, Matrix b)
-        {
-            return CompositionMatrix(a, b);
-        }
-
-
-        public static Matrix operator +(Matrix a, Matrix b)
-        {
-            return SumMatrix(a, b);
-        }
-
         //деление матрицы A на матрицу B
         public static Matrix DivisionMatrix(Matrix a, Matrix b)
         {
-            return Matrix.CompositionMatrix(a, Matrix.InverseMatrix(b));
+            return a * Matrix.InverseMatrix(b);
         }
 
         public static Matrix operator /(Matrix a, Matrix b)
         {
             return DivisionMatrix(a, b);
         }
-        
+
         //возведение матрицы в степень
-        public static Matrix Pow(Matrix A, int pow) {
+        public static Matrix Pow(Matrix A, int pow)
+        {
             var resultMatrix = A;
-            for (int i = 0; i < pow - 1; i++) {
+            for (int i = 0; i < pow - 1; i++)
+            {
                 resultMatrix *= A;
             }
+
             return resultMatrix;
         }
 
@@ -362,7 +348,7 @@ namespace ConsoleApp10
         {
             StringBuilder str = new StringBuilder();
             double eps = Math.Pow(10, -3);
-            
+
             foreach (var list in values)
             {
                 foreach (var value in list)
@@ -411,7 +397,7 @@ namespace ConsoleApp10
 
             values = res;
         }
-        
+
 
         private bool SetSize()
         {
@@ -439,25 +425,42 @@ namespace ConsoleApp10
             return true;
         }
 
-        public int CompareTo(Matrix A) {
+        public int CompareTo(Matrix A)
+        {
+            if (A.Size != this.Size)
+            {
+                throw new MatrixException("разные размерности матриц; нельзя сравнить");
+            }
+
             var ca1 = this.Determinant();
             var ca2 = A.Determinant();
-            if (ca1 > ca2) {
+
+            if (ca1 > ca2)
+            {
                 return 1;
-            } else if (ca1 < ca2) {
-                return -1;
-            } else {
-                return 0;
             }
+
+            if (ca1 < ca2)
+            {
+                return -1;
+            }
+
+            return 0;
         }
-        public int CompareTo(object obj) {
-            if (!(obj is Matrix)) {
+
+        public int CompareTo(object obj)
+        {
+            if (!(obj is Matrix))
+            {
                 throw new MatrixException("Не могу сравнить значения");
             }
-            if (obj is null) {
+
+            if (obj is null)
+            {
                 throw new MatrixException("NULL");
             }
-            return CompareTo((Matrix)obj);
+
+            return CompareTo((Matrix) obj);
         }
     }
 }

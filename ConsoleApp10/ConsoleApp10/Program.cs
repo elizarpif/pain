@@ -19,18 +19,19 @@ namespace ConsoleApp10
                 
                 /*Matrix m = Matrix.TranspositionMatrix(matr);
                 Console.WriteLine("transposition ");
-                m.Print();
+                Console.WriteLine(m.ToString());*/
                 
-                Matrix sum = m + matr;
+                /*Matrix sum = m + matr;
                 Console.WriteLine("sum ");
-                sum.Print();
-
-                Matrix mult = m * matr;
-                Console.WriteLine("multiply ");
-                mult.Print();*/
+                Console.WriteLine(sum.ToString());*/
 
                 Matrix inverse = Matrix.InverseMatrix(matr);
-                Console.WriteLine($"inverse_matrix: {inverse.ToString()}");
+                Console.WriteLine($"inverse_matrix: \n {inverse.ToString()}");
+                
+                Matrix mult = matr * inverse;
+                Console.WriteLine("multiply ");
+                Console.WriteLine(mult.ToString());
+                
                 
                 var a = new Polynom<Matrix>(1, matr, matr);
                 var b = new Polynom<Matrix>(1, matr, inverse);
@@ -46,7 +47,6 @@ namespace ConsoleApp10
             {
                 Console.WriteLine(ex.Message);
             }
-
         }
     }
 }

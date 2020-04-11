@@ -6,15 +6,9 @@ using System.Linq;
 
 namespace ConsoleApp10
 {
-    /*
-     * Необходимые интерфейсы
-     */
     class Polynom<T> : ICloneable, IEnumerable<T>, IComparable, IComparable<Polynom<T>>
         where T : IComparable, new()
     {
-        /*
-         * <degree, T>
-         */
         private Dictionary<int, T> pairDegreeCoef = new Dictionary<int, T>();
 
         public Polynom()
@@ -83,7 +77,7 @@ namespace ConsoleApp10
 
             if (!(obj is Polynom<T>))
             {
-                throw new ArgumentException("This is not a polynome class", nameof(obj));
+                throw new ArgumentException("This is not a polynom class", nameof(obj));
             }
 
             return CompareTo((Polynom<T>) obj);
@@ -102,10 +96,7 @@ namespace ConsoleApp10
 
             return resultDictionary;
         }
-
-        /*
-         * 
-         */
+        
         private static Polynom<T> GetMaxPolynome(Polynom<T> A, Polynom<T> B)
         {
             if (A.CompareTo(B) < 0)
@@ -117,10 +108,7 @@ namespace ConsoleApp10
                 return A;
             }
         }
-
-        /*
-         * 
-         */
+        
         private static Polynom<T> GetMinPolynome(Polynom<T> A, Polynom<T> B)
         {
             if (A.CompareTo(B) <= 0)
@@ -133,10 +121,7 @@ namespace ConsoleApp10
             }
         }
 
-        /* 
-         * 
-         */
-        public static Polynom<T> PolynomeSum(Polynom<T> A, Polynom<T> B)
+        public static Polynom<T> PolynomSum(Polynom<T> A, Polynom<T> B)
         {
             var maxPolynome = GetMaxPolynome(A, B);
             var resultPolynome = new Polynom<T>(Zeros(maxPolynome));
@@ -158,12 +143,9 @@ namespace ConsoleApp10
 
         public static Polynom<T> operator +(Polynom<T> A, Polynom<T> B)
         {
-            return PolynomeSum(A, B);
+            return PolynomSum(A, B);
         }
-
-        /*
-         * 
-         */
+        
         public static Polynom<T> PolynomeDifference(Polynom<T> A, Polynom<T> B)
         {
             var maxPolynome = GetMaxPolynome(A, B);

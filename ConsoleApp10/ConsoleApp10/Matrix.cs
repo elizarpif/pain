@@ -367,7 +367,7 @@ namespace ConsoleApp10
             {
                 foreach (var value in list)
                 {
-                    if (value < eps)
+                    if (Math.Abs(value) < eps)
                         str.Append("0 ");
                     else
                         str.Append($"{value} ");

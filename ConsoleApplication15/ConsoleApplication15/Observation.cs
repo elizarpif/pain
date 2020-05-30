@@ -1,5 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
+using System;
+using System.Collections.Concurrent;
+using System.IO;
 using System.Threading;
 
 namespace ConsoleApplication15
@@ -13,10 +17,13 @@ namespace ConsoleApplication15
     {
         private int countSeats;
         private int countDoctors;
-        private Dictionary<Patient, int> patientSeats;
 
         private SemaphoreSlim doctorSemaphore;
         private SemaphoreSlim observationSeats;
+        private static Mutex m = new Mutex();
+        private static Patient lastSeekPatient;
+
+        private static ConcurrentQueue<Patient> patientSeats;
 
         private int processTime = 60;
 
@@ -24,42 +31,68 @@ namespace ConsoleApplication15
         {
             countDoctors = d;
             countSeats = s;
-            patientSeats = new Dictionary<Patient, int>();
+            
             doctorSemaphore = new SemaphoreSlim(countDoctors, countDoctors);
             observationSeats = new SemaphoreSlim(countSeats, countSeats);
-        }
+            
+            Console.WriteLine($"количество свободных мест в смотровой: {observationSeats.CurrentCount}");
+            Console.WriteLine($"количество свободных докторов в смотровой: {doctorSemaphore.CurrentCount}");
 
+            
+            patientSeats = new ConcurrentQueue<Patient>();
+        }
+        // Процесс доктор-пациент - это поток
+        // у одного пациента может быть несколько докторов
+        
         public void NewPatient(Patient p)
         {
             observationSeats.Wait();
+            if (p.IsSick())
+            {
+                lastSeekPatient = p;
+            }
+            patientSeats.Enqueue(p);
+            Console.WriteLine($"-- {p.GetName()} зашла в смотровую и села в ожидании доктора");
             Thread patientProcess = new Thread(PatientProcess);
-            patientProcess.Start(p);
+            patientProcess.Start();
         }
 
         // проуесс пациента в смотровой
         // ожидает доктора
         // доктор занимается с ним рандомное время в от 1 до минуты
-        public void PatientProcess(Object patientObject)
+        // надо как-то добавить возможность доктора пригласить себе в помощь другого доктора
+        public void PatientProcess()
         {
-            Patient patient = (Patient) patientObject;
-
-            patientSeats.Add(patient, patientSeats.Count + 1);
-            Console.WriteLine($"-- {patient.GetName()} зашла в смотровую и села в ожидании доктора");
-
+            Console.WriteLine($"количество свободных мест в смотровой: {observationSeats.CurrentCount}");
+            Console.WriteLine($"количество свободных докторов в смотровой: {doctorSemaphore.CurrentCount}");
+            
+            Console.WriteLine();
             doctorSemaphore.Wait(); // ждет доктора
+
+            Patient patient;
+            while (!patientSeats.TryDequeue(out patient)){}
+            
 
             Random rndTime = new Random();
             int patientTime = rndTime.Next(processTime - 1) + 1;
 
             Console.WriteLine($"-- доктор занимается с пациентом {patient.GetName()} ({patientTime} сек)");
-            
+
             Thread.Sleep(patientTime * 1000);
 
+            if (lastSeekPatient == patient)
+            {
+                lastSeekPatient = null;
+            }
+            
+            //while (!patientSeats.TryDequeue(out patient)){}
+
             doctorSemaphore.Release();
-
-            Console.WriteLine($"-- {patient.GetName()} покидает смотровую");
-
             observationSeats.Release();
+            
+            Console.WriteLine($"-- {patient.GetName()} покидает смотровую");
+            Console.WriteLine($"количество свободных мест в смотровой: {observationSeats.CurrentCount}");
+            Console.WriteLine($"количество свободных докторов в смотровой: {doctorSemaphore.CurrentCount}");
         }
     }
 }

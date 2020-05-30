@@ -7,7 +7,8 @@ namespace ConsoleApplication15
     {
         private PatientStates _state;
         private string name;
-
+        private static int _num = 0;
+        
         public Patient()
         {
             Random rnd = new Random();
@@ -20,22 +21,8 @@ namespace ConsoleApplication15
                 _state = PatientStates.Sick;
             }
 
+            _num++;
             name = GenerateName();
-        }
-
-        public Patient(string n)
-        {
-            Random rnd = new Random();
-            if (rnd.Next() % 2 == 0)
-            {
-                _state = PatientStates.Healthy;
-            }
-            else
-            {
-                _state = PatientStates.Sick;
-            }
-
-            name = n;
         }
 
         public static string GenerateName()
@@ -49,6 +36,7 @@ namespace ConsoleApplication15
             name.Append(firstNames[rnd.Next(firstNames.Length)]);
             name.Append(" ");
             name.Append(lastNames[rnd.Next(lastNames.Length)]);
+            name.Append(_num);
 
             return name.ToString();
         }
@@ -56,6 +44,11 @@ namespace ConsoleApplication15
         public string GetName()
         {
             return name;
+        }
+
+        public void SetSick()
+        {
+            _state = PatientStates.Sick;
         }
 
         public string GetState()

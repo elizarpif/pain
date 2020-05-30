@@ -39,8 +39,7 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Clinic.cs" />
-        <Compile Include="Constants.cs" />
-        <Compile Include="EmptyObservation.cs" />
+        <Compile Include="Doctor.cs" />
         <Compile Include="Observation.cs" />
         <Compile Include="Patient.cs" />
         <Compile Include="PatientStates.cs" />

@@ -5,23 +5,23 @@ namespace ConsoleApplication15
 {
     public class Patient
     {
-        private PatientStates _state;
+        private PatientStates state;
         private string name;
-        private static int _num = 0;
-        
+        private static int num = 0;
+
         public Patient()
         {
             Random rnd = new Random();
             if (rnd.Next() % 2 == 0)
             {
-                _state = PatientStates.Healthy;
+                state = PatientStates.Healthy;
             }
             else
             {
-                _state = PatientStates.Sick;
+                state = PatientStates.Sick;
             }
 
-            _num++;
+            num++;
             name = GenerateName();
         }
 
@@ -36,7 +36,7 @@ namespace ConsoleApplication15
             name.Append(firstNames[rnd.Next(firstNames.Length)]);
             name.Append(" ");
             name.Append(lastNames[rnd.Next(lastNames.Length)]);
-            name.Append(_num);
+            name.Append(num);
 
             return name.ToString();
         }
@@ -48,24 +48,23 @@ namespace ConsoleApplication15
 
         public void SetSick()
         {
-            _state = PatientStates.Sick;
+            state = PatientStates.Sick;
         }
 
         public string GetState()
         {
-            if (_state == PatientStates.Healthy)
+            if (state == PatientStates.Healthy)
             {
                 return "здорова";
             }
 
             return "больна";
-          
         }
-        
+
 
         public bool IsSick()
         {
-            switch (_state)
+            switch (state)
             {
                 case PatientStates.Sick:
                     return true;

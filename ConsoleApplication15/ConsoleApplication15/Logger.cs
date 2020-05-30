@@ -17,7 +17,7 @@ namespace ConsoleApplication15
             Print(s, false);
         }
 
-        private void Print(string s, bool isRed )
+        private void Print(string s, bool isRed)
         {
             mutex.WaitOne();
 
@@ -31,8 +31,10 @@ namespace ConsoleApplication15
             {
                 Console.WriteLine(s);
             }
+
             mutex.ReleaseMutex();
         }
+
         public void PrintRed(string s)
         {
             Print(s, true);

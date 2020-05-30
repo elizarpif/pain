@@ -24,3 +24,7 @@
 информацию о новых заболевших в очереди. Продемонстрируйте работу вашей
 программы при различных значениях параметров. Подберите параметры так, чтоб
 показать особые случаи, которые могут возникнуть в инфекционном отделении.
+
+![Заражение очереди](https://github.com/elizarpif/pain/blob/master/ConsoleApplication15/ConsoleApplication15/scrins/Снимок1.PNG)
+
+![Заражение очереди и помощь доктора](https://github.com/elizarpif/pain/blob/master/ConsoleApplication15/ConsoleApplication15/scrins/Снимок2.PNG)

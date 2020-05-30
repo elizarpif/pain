@@ -8,20 +8,20 @@ namespace ConsoleApplication15
 {
     public class Clinic
     {
-        public const int Second = 60;
+        private Observation observation;
+        private ConcurrentQueue<Patient> patientsQueue;
+        private Logger logger;
 
-        private Observation _observation;
-        private ConcurrentQueue<Patient> _queue;
-        private static Mutex m = new Mutex();
-        private int doctorsCount;
-    
-        private int seatsCount;
-
+        private Params pParams;
         private Patient lastSickPatient;
-        public Clinic(int doctors, int patients)
+
+        public Clinic(Params p)
         {
-            _observation = new Observation(doctors, patients);
-            _queue = new ConcurrentQueue<Patient>();
+            pParams = p;
+            patientsQueue = new ConcurrentQueue<Patient>();
+            logger = new Logger();
+            
+            observation = new Observation(p.Doctors, p.Seats, p.DoctorProcessTime, p.GenerateHelpDoctor, logger);
         }
 
 
@@ -29,9 +29,10 @@ namespace ConsoleApplication15
         {
             Thread patientsObservation = new Thread(WaitSeatInObservation);
             patientsObservation.Start();
-            
-            Thread sicker = new Thread(Sicker);
+
+            Thread sicker = new Thread(Infection);
             sicker.Start();
+            
             GenNewPatients();
         }
 
@@ -39,26 +40,30 @@ namespace ConsoleApplication15
         {
             while (true)
             {
-                if (_queue.Count > 0)
+                if (patientsQueue.Count > 0)
                 {
-                    m.WaitOne();
-                    // чтобы отследить очередь распечатаем
-                    if (_queue.Count>1)
-                        printQueue();
                     Patient p;
-                    while (!_queue.TryDequeue(out p))
+                    while (!patientsQueue.TryPeek(out p)) {}
+
+                    bool free = observation.isFree();
+                    bool isSickObs = observation.isSickObservation();
+                    bool isSickPat = p.IsSick();
+                    
+                    if (free || (isSickObs && isSickPat) || (!isSickObs && !isSickPat))
                     {
+                        // чтобы отследить очередь распечатаем
+                        if (patientsQueue.Count > 1)
+                            printQueue();
+
+                        while (!patientsQueue.TryDequeue(out p)) {}
+
+                        if (p == lastSickPatient)
+                        {
+                            lastSickPatient = null;
+                        }
                         
+                        observation.NewPatient(p);
                     }
-
-                    if (p == lastSickPatient)
-                    {
-                        lastSickPatient = null;
-                    }
-                    printQueue();
-                    m.ReleaseMutex();
-                    _observation.NewPatient(p);
-
                 }
             }
         }
@@ -69,61 +74,72 @@ namespace ConsoleApplication15
             {
                 Patient patient = new Patient();
 
-                _queue.Enqueue(patient);
+                patientsQueue.Enqueue(patient);
+                
                 if (patient.IsSick())
                 {
                     lastSickPatient = patient;
                 }
-               // printQueue();
+                
                 Random rnd = new Random();
-                int time = rnd.Next(5) + 1;
-                Thread.Sleep(1000*time);
+                int time = rnd.Next(pParams.GeneratePatientTime) + 1;
+                
+                Thread.Sleep(1000 * time);
             }
         }
 
         // все в очереди заражаюdтся
-        public void Sicker()
+        public void Infection()
         {
             Random rnd = new Random();
-            int time = (rnd.Next(60) + 1)*1000;
+            int time = (rnd.Next(pParams.GenerateSickTime) + 1) * 1000;
             while (true)
             {
                 Thread.Sleep(time);
                 if (lastSickPatient != null)
                 {
-                    foreach (Patient p in _queue)
+                    printQueue();
+
+                    bool isHealthy = true;
+                    
+                    foreach (Patient p in patientsQueue)
                     {
+                        if (isHealthy && !p.IsSick())
+                        {
+                            isHealthy = false;
+                            
+                            // цвет консоли только для текущего потока ?
+                            logger.PrintRed($"заболевший: {lastSickPatient.GetName()} заражает всех!");
+                        }
                         p.SetSick();
                         lastSickPatient = p;
                     }
-                    time = (rnd.Next(60) + 1)*1000;
-                    
+
+                    time = (rnd.Next(pParams.GenerateSickTime) + 1) * 1000;
                 }
             }
         }
 
         public void printQueue()
         {
-            if (_queue.Count == 0)
+            if (patientsQueue.Count == 0)
             {
                 return;
             }
-            
+
             int i = 1;
-            
+
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.Append("Очередь: \n");
-            
-            foreach (var obj in _queue)
+
+            foreach (Patient p in patientsQueue)
             {
-                Patient p = (Patient) obj;
-                
                 stringBuilder.Append($"{i}) {p.GetName()} : {p.GetState()}\n");
 
                 i++;
             }
-            
-            Console.WriteLine(stringBuilder.ToString());
+
+            logger.PrintBlack(stringBuilder.ToString());
         }
     }
 }

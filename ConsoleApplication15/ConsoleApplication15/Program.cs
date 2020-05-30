@@ -22,18 +22,21 @@
 
 namespace ConsoleApplication15
 {
-
     internal class Program
     {
         public static void Main(string[] args)
         {
-            int doctorsCount = 5;
-            int patientCount = 7;
-            
-            Clinic c = new Clinic(doctorsCount, patientCount );
+            Params p = new Params();
+
+            p.Doctors = 5;
+            p.Seats = 7;
+            p.GeneratePatientTime = 10;
+            p.GenerateSickTime = 60;
+            p.DoctorProcessTime = 60;
+            p.GenerateHelpDoctor = 3;
+
+            Clinic c = new Clinic(p);
             c.Start();
-            
-            
         }
     }
 }
